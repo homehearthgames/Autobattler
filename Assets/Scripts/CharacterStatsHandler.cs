@@ -7,6 +7,7 @@ public class CharacterStatsHandler : MonoBehaviour
     [SerializeField] private CharacterStats characterStats;
     
     [SerializeField] public float health;
+    [SerializeField] public float maxHealth;
     [SerializeField] public float speed;
     [SerializeField] public float attackRange;
     [SerializeField] public float attackDamage;
@@ -15,11 +16,14 @@ public class CharacterStatsHandler : MonoBehaviour
     [SerializeField] public float projectileDamage;
     [SerializeField] public float rangedAttackSpeed;
 
+    
+
     private void Awake()
     {
         if (characterStats != null)
         {
             health = characterStats.Health;
+            maxHealth = health;
             speed = characterStats.Speed;
             attackRange = characterStats.AttackRange;
             attackDamage = characterStats.AttackDamage;

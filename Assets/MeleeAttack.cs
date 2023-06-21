@@ -4,7 +4,6 @@ using UnityEngine;
 public class MeleeAttack : MonoBehaviour
 {
     private float attackSpeed; // fires every Y seconds
-    public GameObject weaponEffect; // projectile prefab
     public float weaponEffectOffset;
     public Sprite[] sprites; // sprites to be looped through
 
@@ -82,30 +81,19 @@ public class MeleeAttack : MonoBehaviour
 
 
 
-private void Fire()
-{
-    EntityMovement entityMovement = GetComponent<EntityMovement>();
-    if (entityMovement.closestEnemy == null) // Add this line to check if the enemy still exists
+    private void Fire()
     {
-        // If the enemy does not exist, don't execute the rest of the code
-        return;
+        EntityMovement entityMovement = GetComponent<EntityMovement>();
+        if (entityMovement.closestEnemy == null) // Add this line to check if the enemy still exists
+        {
+            // If the enemy does not exist, don't execute the rest of the code
+            return;
+        }
+
+        CharacterStatsHandler enemyCharacterStatsHandler = entityMovement.closestEnemy.GetComponent<CharacterStatsHandler>();
+
+        enemyCharacterStatsHandler.health -= this.characterStatsHandler.attackDamage; 
     }
-    Vector2 direction = (attackController.entityMovement.closestEnemy.transform.position - transform.position).normalized;
-    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-    // Instantiate the projectile about .5 units away from the center of the game object, but toward the enemyCharacterStatsHandler gameobject.
-    Vector3 spawnPosition = transform.position + (Vector3)(weaponEffectOffset * direction);
-    // GameObject newWeaponEffect = Instantiate(weaponEffect, spawnPosition, Quaternion.Euler(0, 0, angle));
-
-    CharacterStatsHandler enemyCharacterStatsHandler = entityMovement.closestEnemy.GetComponent<CharacterStatsHandler>();
-
-    enemyCharacterStatsHandler.health -= this.characterStatsHandler.attackDamage; 
-
-
-
-    // Assign the projectile to the same layer as the object that fires it.
-    // newWeaponEffect.layer = gameObject.layer;
-}
 
 
 }

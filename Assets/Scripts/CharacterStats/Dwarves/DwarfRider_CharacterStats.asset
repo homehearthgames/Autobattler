@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a399747c3392da44ba623ef897510d16, type: 3}
-  m_Name: Beastman_CharacterStats
+  m_Name: DwarfRider_CharacterStats
   m_EditorClassIdentifier: 
-  health: 45
+  health: 90
   speed: 1
   attackRange: 1
   attackDamage: 4
-  attackSpeed: 2
+  attackSpeed: 1.5
   projectileSpeed: 0
   projectileDamage: 0
   rangedAttackSpeed: 0

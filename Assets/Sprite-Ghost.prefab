@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -1054339242203496008}
   - component: {fileID: 8546135246886891524}
   m_Layer: 0
-  m_Name: Sprite-Gunshot
+  m_Name: Sprite-Ghost
   m_TagString: Projectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 131169207
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 684f705aec1f98a4f82d6494db393c26, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 21302423c93950142a54f2247fab4744, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

@@ -49,6 +49,7 @@ public class CharacterStats : ScriptableObject
         set { attackSpeed = value; }
     }
 
+
     public float ProjectileSpeed
     {
         get { return projectileSpeed; }

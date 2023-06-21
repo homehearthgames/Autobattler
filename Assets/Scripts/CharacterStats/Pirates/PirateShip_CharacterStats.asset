@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a399747c3392da44ba623ef897510d16, type: 3}
-  m_Name: Satyr_CharacterStats
+  m_Name: PirateShip_CharacterStats
   m_EditorClassIdentifier: 
-  health: 20
-  speed: 1
-  attackRange: 0.5
-  attackDamage: 2
-  attackSpeed: 1
-  projectileSpeed: 0
-  projectileDamage: 0
-  rangedAttackSpeed: 0
+  health: 90
+  speed: 1.2
+  attackRange: 6
+  attackDamage: 0
+  attackSpeed: 0
+  projectileSpeed: 4
+  projectileDamage: 5
+  rangedAttackSpeed: 3

@@ -3,49 +3,51 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     private TeamController teamController;
+    private bool hasHit;  // Add this boolean flag
 
-    // Define the projectileDamage variable
-    public float projectileDamage = 10f; // Change this value as per your game balancing needs
+    public float projectileDamage = 10f;
 
     private void Start()
     {
         teamController = GetComponentInParent<TeamController>();
         Destroy(gameObject, 10f);
+        hasHit = false;  // Initialize the flag as false
     }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        // If the projectile has already hit a target, do nothing
+        if(hasHit)
+            return;
 
-        // If the projectile's team is Team1 and it hits an object on Team2, deal damage and destroy itself
         if (gameObject.layer == LayerMask.NameToLayer("Team 1") && collision.gameObject.layer == LayerMask.NameToLayer("Team 2"))
         {
-            // Ignore anything with the Projectile tag
             if (collision.gameObject.tag == "Projectile")
             {
                 return;
             }
-            // Access the CharacterStatsHandler of the enemy and subtract the projectile damage from its health
+
             CharacterStatsHandler enemyStats = collision.gameObject.GetComponent<CharacterStatsHandler>();
             if(enemyStats != null)
             {
                 enemyStats.health -= projectileDamage;
+                hasHit = true;  // Set the flag to true when the projectile hits a target
             }
 
             Destroy(gameObject);
         }
-        // If the projectile's team is Team2 and it hits an object on Team1, deal damage and destroy itself
         else if (gameObject.layer == LayerMask.NameToLayer("Team 2") && collision.gameObject.layer == LayerMask.NameToLayer("Team 1"))
         {
-            // Ignore anything with the Projectile tag
             if (collision.gameObject.tag == "Projectile")
             {
                 return;
             }
-            // Access the CharacterStatsHandler of the enemy and subtract the projectile damage from its health
+
             CharacterStatsHandler enemyStats = collision.gameObject.GetComponent<CharacterStatsHandler>();
             if(enemyStats != null)
             {
                 enemyStats.health -= projectileDamage;
+                hasHit = true;  // Set the flag to true when the projectile hits a target
             }
 
             Destroy(gameObject);

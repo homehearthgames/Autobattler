@@ -16,6 +16,8 @@ public class RangedAttack : MonoBehaviour
     private CharacterStatsHandler characterStatsHandler;
     private float nextFire;
 
+    public GameObject firePoint; // firePoint prefab
+
     private void Start()
     {
         attackController = GetComponent<AttackController>();
@@ -84,29 +86,29 @@ public class RangedAttack : MonoBehaviour
 
 
 private void Fire()
-{
-    if (attackController.entityMovement.closestEnemy != null)
     {
-        Vector2 direction = (attackController.entityMovement.closestEnemy.transform.position - transform.position).normalized;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        if (attackController.entityMovement.closestEnemy != null)
+        {
+            Vector2 direction = (attackController.entityMovement.closestEnemy.transform.position - firePoint.transform.position).normalized;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        // Instantiate the projectile facing the direction it's moving in.
-        GameObject newProjectile = Instantiate(projectile, transform.position, Quaternion.Euler(0, 0, angle));
-        Projectile projectileInstance = newProjectile.GetComponent<Projectile>();
-        projectileInstance.projectileDamage = characterStatsHandler.projectileDamage;
-        // Set the velocity so that the projectile moves towards the center of the enemy.
-        direction *= projectileSpeed;
+            // Instantiate the projectile from firePoint position, facing the direction it's moving in.
+            GameObject newProjectile = Instantiate(projectile, firePoint.transform.position, Quaternion.Euler(0, 0, angle));
+            Projectile projectileInstance = newProjectile.GetComponent<Projectile>();
+            projectileInstance.projectileDamage = characterStatsHandler.projectileDamage;
 
-        newProjectile.GetComponent<Rigidbody2D>().velocity = direction;
+            // Set the velocity so that the projectile moves towards the center of the enemy.
+            direction *= projectileSpeed;
+            newProjectile.GetComponent<Rigidbody2D>().velocity = direction;
 
-        // Assign the projectile to the same layer as the object that fires it.
-        newProjectile.layer = gameObject.layer;
+            // Assign the projectile to the same layer as the object that fires it.
+            newProjectile.layer = gameObject.layer;
+        }
+        else
+        {
+            // Handle case when closest enemy is null
+        }
     }
-    else
-    {
-        // Handle case when closest enemy is null
-    }
-}
 
 
 }

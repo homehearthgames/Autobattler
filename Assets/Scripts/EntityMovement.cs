@@ -2,9 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
+public enum UnitType
+{
+    Ranged,
+    Melee,
+    Cavalry
+}
 public class EntityMovement : MonoBehaviour
 {
+    public UnitType unitType;  // The type of unit
     public float speed = 2f;  // Maximum speed at which character moves
     public float acceleration = 0.5f;  // Acceleration of the character
     private float currentSpeed = 0f; // Current speed of the character
@@ -23,39 +31,36 @@ public class EntityMovement : MonoBehaviour
     public bool isInContact = false;  // Is the character in contact with an enemy
     public bool randomTargetingEnabled = false;  // Is random targeting enabled
 
-private void Start()
-{
-    // Get the TeamController and SpriteRenderer components
-    teamController = GetComponent<TeamController>();
-    spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-    characterStatsHandler = GetComponent<CharacterStatsHandler>();
-
-    SetStats();
-
-    // Set the initial time for the last target switch
-    lastTargetSwitchTime = Time.time;
-
-    // Find the closest enemy
-    FindClosestEnemy();
-
-    // Add flipping logic here
-    // Check if there is a closest enemy
-    if (closestEnemy != null)
+    private void Start()
     {
-        // Calculate the direction to the enemy
-        Vector2 direction = (closestEnemy.transform.position - transform.position).normalized;
+        // Get the TeamController and SpriteRenderer components
+        teamController = GetComponent<TeamController>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        characterStatsHandler = GetComponent<CharacterStatsHandler>();
 
-        // Flip the sprite based on direction
-        if (direction.x > 0f)
+        SetStats();
+
+        // Set the initial time for the last target switch
+        lastTargetSwitchTime = Time.time;
+        FindInitialEnemy();
+
+        // Check if there is a closest enemy
+        if (closestEnemy != null)
         {
-            spriteRenderer.flipX = false;
-        }
-        else if (direction.x < 0f)
-        {
-            spriteRenderer.flipX = true;
+            // Calculate the direction to the enemy
+            Vector2 direction = (closestEnemy.transform.position - transform.position).normalized;
+
+            // Flip the sprite based on direction
+            if (direction.x > 0f)
+            {
+                spriteRenderer.flipX = false;
+            }
+            else if (direction.x < 0f)
+            {
+                spriteRenderer.flipX = true;
+            }
         }
     }
-}
 
 
 
@@ -65,110 +70,164 @@ private void Start()
         attackRange = characterStatsHandler.attackRange;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        // If the character is in contact with an enemy, attack and don't move
-        // if (isInContact)
-        // {
-        //     return;
-        // }
 
-        if (closestEnemy == null && randomTargetingEnabled)
+        if (closestEnemy == null)
         {
-            
-            currentSpeed = 0f; // Reset speed when no contact with enemy
-            SwitchRandomTarget();
+            // Find a random nearby enemy
+            FindNearbyEnemy();
+        
+            // If no enemy found, do look for the closest enemy.
+            if (closestEnemy == null)
+            {
+                FindClosestEnemy();
+
+                if (closestEnemy == null)
+                {
+                    return;
+                }
+            }
         }
-
-        // Check if random targeting is enabled and it's time to switch the random target
-        // if (randomTargetingEnabled && Time.time - lastTargetSwitchTime >= targetSwitchInterval)
-        // {
-        //     SwitchRandomTarget();
-        // }
-
-        else if (!randomTargetingEnabled)
-        {
-            // Find the closest enemy
-            FindClosestEnemy();
-        }
-
-        // If no enemy found, do nothing (one-line if statement)
-        if (closestEnemy == null) return;
 
         // Calculate the distance to the enemy
         float distanceToEnemy = Vector2.Distance(transform.position, closestEnemy.transform.position);
 
         // Check if the enemy is within the attack range
-        if (distanceToEnemy <= attackRange)
+        if (distanceToEnemy <= attackRange && closestEnemy != null)
         {
             return;
         }
-        else
-        {
-            MoveTowards(closestEnemy.transform.position);
-        }
+        
+        // if (distanceToEnemy > attackRange + 3)
+        // {
+        //     FindClosestEnemy();
+        // }
+
+        MoveTowards(closestEnemy.transform.position);
         AdjustForOverlap();
     }
-private void AdjustForOverlap()
-{
-    // Get all TeamControllers in the scene
-    TeamController[] controllers = FindObjectsOfType<TeamController>();
 
-    // Threshold for distance between character centers
-    float centerDistanceThreshold = 1f;
-
-    // Iterate over each TeamController
-    foreach (TeamController controller in controllers)
+    private void AdjustForOverlap()
     {
-        // If the controller is on the same team and it's not the character itself
-        if (controller.team == teamController.team && controller != teamController)
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, .5f);
+
+        foreach (Collider2D collider in hitColliders)
         {
-            // Calculate the distance between character centers
-            float centerDistance = Vector2.Distance(transform.position, controller.transform.position);
+            TeamController otherTeamController = collider.GetComponent<TeamController>();
 
-            // If the distance is less than the threshold
-            if (centerDistance < centerDistanceThreshold)
+            if (otherTeamController != null && otherTeamController.team == teamController.team && collider != teamController.GetComponent<Collider2D>())
             {
-                // Calculate the direction to move away
-                Vector2 awayFromTeammate = (Vector2)transform.position - (Vector2)controller.transform.position;
-                awayFromTeammate.Normalize();
+                float centerDistance = Vector2.Distance(transform.position, collider.transform.position);
 
-                // Move the character away from the teammate
-                transform.position = (Vector2)transform.position + awayFromTeammate * overlapAvoidanceForce * Time.deltaTime;
+                if (centerDistance < .5f)
+                {
+                    Vector2 awayFromTeammate = (Vector2)transform.position - (Vector2)collider.transform.position;
+                    awayFromTeammate.Normalize();
+
+                    transform.position += (Vector3)(awayFromTeammate * overlapAvoidanceForce * Time.deltaTime);
+                }
             }
         }
     }
-}
 
     private void FindClosestEnemy()
     {
-        // Get all TeamControllers in the scene
-        TeamController[] controllers = FindObjectsOfType<TeamController>();
+
+        Debug.Log("Finding Closest Enemy.");
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackRange + 64);
 
         float closestDistance = Mathf.Infinity;
         Collider2D newClosestEnemy = null;
 
-        // Find the closest enemy
-        foreach (TeamController controller in controllers)
+        foreach (Collider2D collider in hitColliders)
         {
-            // If the controller is on the opposite team
-            if (controller.team != teamController.team)
+            TeamController teamController = collider.GetComponent<TeamController>();
+
+            if (teamController != null && teamController.team != this.teamController.team)
             {
-                float distanceToEnemy = Vector2.Distance(transform.position, controller.transform.position);
+                float distanceToEnemy = Vector2.Distance(transform.position, collider.transform.position);
                 if (distanceToEnemy < closestDistance)
                 {
                     closestDistance = distanceToEnemy;
-                    newClosestEnemy = controller.GetComponent<Collider2D>();
+                    newClosestEnemy = collider;
                 }
             }
         }
 
-        // Update the closest enemy only if it's not null
-        if (newClosestEnemy != null)
+        closestEnemy = newClosestEnemy;
+    }
+    
+    private void FindNearbyEnemy()
+    {
+        Debug.Log("Finding Nearby Enemy.");
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackRange + 2);
+
+        List<Collider2D> enemyColliders = new List<Collider2D>();
+
+        foreach (Collider2D collider in hitColliders)
         {
-            closestEnemy = newClosestEnemy;
+            TeamController teamController = collider.GetComponent<TeamController>();
+
+            if (teamController != null && teamController.team != this.teamController.team)
+            {
+                enemyColliders.Add(collider);
+            }
+        }
+
+        if (enemyColliders.Count > 0)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, enemyColliders.Count);
+            closestEnemy = enemyColliders[randomIndex];
+        }
+        else
+        {
+            closestEnemy = null;
         }
     }
+
+private void FindInitialEnemy()
+{
+    Debug.Log("Finding Initial Enemy.");
+    Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackRange + 64);
+
+    List<Collider2D> enemiesInRange = new List<Collider2D>();
+
+    foreach (Collider2D collider in hitColliders)
+    {
+        TeamController teamController = collider.GetComponent<TeamController>();
+
+        if (teamController != null && teamController.team != this.teamController.team)
+        {
+            enemiesInRange.Add(collider);
+        }
+    }
+
+    // Sort the enemies by their distance to this entity
+    enemiesInRange.Sort((x, y) => 
+    {
+        float distX = Vector2.Distance(transform.position, x.transform.position);
+        float distY = Vector2.Distance(transform.position, y.transform.position);
+        return distX.CompareTo(distY);
+    });
+
+    // Take the 5 closest enemies, or all if there are less than 5
+    List<Collider2D> closestEnemies = enemiesInRange.Take(Math.Min(5, enemiesInRange.Count)).ToList();
+
+    // If there are any enemies in range
+    if (closestEnemies.Count > 0)
+    {
+        // Choose a random one
+        int randomIndex = UnityEngine.Random.Range(0, closestEnemies.Count);
+        closestEnemy = closestEnemies[randomIndex];
+    }
+    else
+    {
+        closestEnemy = null;
+    }
+}
+
+
 
     private void SwitchRandomTarget()
     {
