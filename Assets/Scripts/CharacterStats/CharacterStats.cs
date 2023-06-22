@@ -3,11 +3,12 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "CharacterStats", menuName = "ScriptableObjects/CharacterStats", order = 1)]
 public class CharacterStats : ScriptableObject
 {
+    [SerializeField] private int goldCost;
+
     [Header("Stats")]
     [SerializeField] private int health;
     [SerializeField] private float speed;
     [SerializeField] private float attackRange;
-
     
     [Header("Melee Settings")]
     [SerializeField] private float attackDamage;
@@ -18,6 +19,11 @@ public class CharacterStats : ScriptableObject
     [SerializeField] private float projectileDamage;
     [SerializeField] private float rangedAttackSpeed;
 
+    public int GoldCost
+    {
+        get { return goldCost; }
+        set { goldCost = value; }
+    }
 
     public int Health
     {

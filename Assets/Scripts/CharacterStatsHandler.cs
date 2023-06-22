@@ -15,13 +15,16 @@ public class CharacterStatsHandler : MonoBehaviour
     [SerializeField] public float projectileSpeed;
     [SerializeField] public float projectileDamage;
     [SerializeField] public float rangedAttackSpeed;
-
+    [SerializeField] public float goldCost;
+    private GameManager gameManager;
     
 
     private void Awake()
     {
+        gameManager = FindObjectOfType<GameManager>();
         if (characterStats != null)
         {
+            goldCost = characterStats.GoldCost;
             health = characterStats.Health;
             maxHealth = health;
             speed = characterStats.Speed;
@@ -38,11 +41,20 @@ public class CharacterStatsHandler : MonoBehaviour
         CheckHealth();
     }
 
-    private void CheckHealth()
+private void CheckHealth()
+{
+    if (health <= 0)
     {
-        if (health <= 0)
+        // adjusting the cost based on which pool this character belongs to
+        if (transform.parent.gameObject == gameManager.allyPool)
         {
-            Destroy(gameObject);
+            gameManager.allyCurrentArmyCost -= goldCost;
         }
+        else if (transform.parent.gameObject == gameManager.enemyPool)
+        {
+            gameManager.enemyCurrentArmyCost -= goldCost;
+        }
+        Destroy(gameObject);
     }
+}
 }

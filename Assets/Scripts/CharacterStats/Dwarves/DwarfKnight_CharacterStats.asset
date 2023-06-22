@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a399747c3392da44ba623ef897510d16, type: 3}
   m_Name: DwarfKnight_CharacterStats
   m_EditorClassIdentifier: 
+  goldCost: 80
   health: 40
   speed: 1
   attackRange: 0.75

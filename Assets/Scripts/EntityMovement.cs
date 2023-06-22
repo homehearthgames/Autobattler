@@ -96,6 +96,7 @@ public class EntityMovement : MonoBehaviour
         // Check if the enemy is within the attack range
         if (distanceToEnemy <= attackRange && closestEnemy != null)
         {
+            currentSpeed = 0;
             return;
         }
         
@@ -161,7 +162,7 @@ public class EntityMovement : MonoBehaviour
     private void FindNearbyEnemy()
     {
         Debug.Log("Finding Nearby Enemy.");
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackRange + 2);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackRange + 3);
 
         List<Collider2D> enemyColliders = new List<Collider2D>();
 

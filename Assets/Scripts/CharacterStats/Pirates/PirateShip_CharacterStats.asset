@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a399747c3392da44ba623ef897510d16, type: 3}
   m_Name: PirateShip_CharacterStats
   m_EditorClassIdentifier: 
+  goldCost: 250
   health: 90
   speed: 1.2
   attackRange: 6
   attackDamage: 0
   attackSpeed: 0
   projectileSpeed: 4
-  projectileDamage: 5
+  projectileDamage: 10
   rangedAttackSpeed: 3
